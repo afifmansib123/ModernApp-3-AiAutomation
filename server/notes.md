@@ -71,3 +71,15 @@ Quote Schema - stores generated quotations
 Historical Quote Schema - for client-specific learning (Phase 2)
 Review Feedback Schema - for AI learning
 Market Data Schema - stores commodity prices for adjustments
+
+
+### Commit 1.3 : First AI Service : Gemini Service
+
+Check service - src/services/gemini.service.ts
+
+ * The service has 3 private class and 2 async methods
+ * initializeGenAI - start the service
+ * analyzeDrawing - analyze engineering drawing and extract specifications
+ * validateSpecs - validate and normalize extracted specifications
+ * getMimeType - determine MIME type from file extension -> what type of image
+ * analyzeDrawingsBatch - batch analyze multiple drawings
