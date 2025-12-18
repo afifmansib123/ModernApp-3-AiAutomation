@@ -1,4 +1,4 @@
-import Anthropic from '@anthropic-ai/sdk';
+import Anthropic from "@anthropic-ai/sdk";
 
 let client: Anthropic | null = null;
 
@@ -34,6 +34,7 @@ interface DrawingSpecs {
   manufacturingProcess: string[];
   complexity: number;
   specialRequirements: string[];
+  confidence: number;
 }
 
 // Generic manufacturing cost database (Phase 1)
@@ -54,7 +55,7 @@ const LABOR_RATES: Record<string, number> = {
   milling: 48, // $ per hour
   turning: 40, // $ per hour
   assembly: 30, // $ per hour
-  '3d_printing': 60, // $ per hour
+  "3d_printing": 60, // $ per hour
 };
 
 const COMPLEXITY_TIME_MULTIPLIER = {
@@ -78,16 +79,16 @@ export class ClaudeService {
     if (client) return; // Already initialized
 
     const apiKey = process.env.CLAUDE_API_KEY;
-    
-    console.log('[ClaudeService] Initializing...');
-    console.log('[ClaudeService] API Key exists:', !!apiKey);
-    
+
+    console.log("[ClaudeService] Initializing...");
+    console.log("[ClaudeService] API Key exists:", !!apiKey);
+
     if (!apiKey) {
-      throw new Error('CLAUDE_API_KEY environment variable is not set');
+      throw new Error("CLAUDE_API_KEY environment variable is not set");
     }
-    
+
     client = new Anthropic({ apiKey });
-    console.log('[ClaudeService] ✓ Initialized successfully');
+    console.log("[ClaudeService] ✓ Initialized successfully");
   }
 
   /**
@@ -97,20 +98,26 @@ export class ClaudeService {
   async calculateCost(specs: DrawingSpecs): Promise<CostBreakdown> {
     try {
       // Calculate material cost
-      const normalizedMaterial = specs.material.toLowerCase().replace(/\s+/g, '_');
+      const normalizedMaterial = specs.material
+        .toLowerCase()
+        .replace(/\s+/g, "_");
       const unitCost = MATERIAL_COSTS[normalizedMaterial] || 5; // Default fallback
       const materialTotalCost = specs.materialQuantity * unitCost;
 
       // Calculate labor cost
-      const baseHours = COMPLEXITY_TIME_MULTIPLIER[specs.complexity as keyof typeof COMPLEXITY_TIME_MULTIPLIER] || 2;
-      
+      const baseHours =
+        COMPLEXITY_TIME_MULTIPLIER[
+          specs.complexity as keyof typeof COMPLEXITY_TIME_MULTIPLIER
+        ] || 2;
+
       // Get average labor rate for manufacturing processes
       const laborRates = specs.manufacturingProcess.map(
         (process) => LABOR_RATES[process.toLowerCase()] || 45
       );
-      const avgHourlyRate = laborRates.length > 0
-        ? laborRates.reduce((a, b) => a + b, 0) / laborRates.length
-        : 45;
+      const avgHourlyRate =
+        laborRates.length > 0
+          ? laborRates.reduce((a, b) => a + b, 0) / laborRates.length
+          : 45;
 
       const laborTotalCost = baseHours * avgHourlyRate;
 
@@ -141,7 +148,7 @@ export class ClaudeService {
         baseCost: baseCost,
       };
     } catch (error) {
-      console.error('Error calculating cost:', error);
+      console.error("Error calculating cost:", error);
       throw error;
     }
   }
@@ -150,50 +157,59 @@ export class ClaudeService {
    * Use Claude to generate detailed cost analysis and reasoning
    * Provides transparency into how cost was calculated
    */
-  async generateCostAnalysis(specs: DrawingSpecs, costBreakdown: CostBreakdown): Promise<string> {
+  async generateCostAnalysis(
+    specs: DrawingSpecs,
+    costBreakdown: CostBreakdown
+  ): Promise<string> {
     try {
       this.initializeClient(); // Initialize on first use
-      
+
       if (!client) {
-        throw new Error('Claude client not initialized');
+        throw new Error("Claude client not initialized");
       }
 
       const prompt = `You are a manufacturing cost analyst. Based on the following product specifications and cost breakdown, provide a brief professional analysis (2-3 sentences) of why this cost estimate is reasonable.
 
 Product Specifications:
 - Material: ${specs.material} (${specs.materialQuantity} ${specs.materialUnit})
-- Dimensions: ${specs.dimensions.length}x${specs.dimensions.width}x${specs.dimensions.height} ${specs.dimensions.unit}
-- Manufacturing Processes: ${specs.manufacturingProcess.join(', ')}
+- Dimensions: ${specs.dimensions.length}x${specs.dimensions.width}x${
+        specs.dimensions.height
+      } ${specs.dimensions.unit}
+- Manufacturing Processes: ${specs.manufacturingProcess.join(", ")}
 - Complexity Level: ${specs.complexity}/10
-- Special Requirements: ${specs.specialRequirements.join(', ') || 'None'}
+- Special Requirements: ${specs.specialRequirements.join(", ") || "None"}
 
 Cost Breakdown:
 - Material Cost: $${costBreakdown.material.totalCost.toFixed(2)}
-- Labor Cost: $${costBreakdown.labor.totalCost.toFixed(2)} (${costBreakdown.labor.hours} hours @ $${costBreakdown.labor.hourlyRate}/hr)
-- Overhead (${costBreakdown.overhead.percentage}%): $${costBreakdown.overhead.totalCost.toFixed(2)}
+- Labor Cost: $${costBreakdown.labor.totalCost.toFixed(2)} (${
+        costBreakdown.labor.hours
+      } hours @ $${costBreakdown.labor.hourlyRate}/hr)
+- Overhead (${
+        costBreakdown.overhead.percentage
+      }%): $${costBreakdown.overhead.totalCost.toFixed(2)}
 - Total Base Cost: $${costBreakdown.baseCost.toFixed(2)}
 
 Provide a brief, professional justification for this cost estimate.`;
 
       const message = await client.messages.create({
-        model: 'claude-3-5-haiku-20241022',
+        model: "claude-3-5-haiku-20241022",
         max_tokens: 300,
         messages: [
           {
-            role: 'user',
+            role: "user",
             content: prompt,
           },
         ],
       });
 
       const responseText = message.content[0];
-      if (responseText.type === 'text') {
+      if (responseText.type === "text") {
         return responseText.text;
       }
-      return 'Cost analysis generated';
+      return "Cost analysis generated";
     } catch (error) {
-      console.error('Error generating cost analysis:', error);
-      return 'Unable to generate analysis at this time';
+      console.error("Error generating cost analysis:", error);
+      return "Unable to generate analysis at this time";
     }
   }
 
@@ -203,9 +219,9 @@ Provide a brief, professional justification for this cost estimate.`;
   async validateSpecs(rawSpecs: Partial<DrawingSpecs>): Promise<DrawingSpecs> {
     try {
       this.initializeClient(); // Initialize on first use
-      
+
       if (!client) {
-        throw new Error('Claude client not initialized');
+        throw new Error("Claude client not initialized");
       }
 
       const prompt = `You are a manufacturing expert. Validate and correct these extracted drawing specifications if needed.
@@ -226,32 +242,37 @@ Return ONLY valid JSON in this exact format, correcting any obvious errors:
   },
   "manufacturingProcess": ["process1", "process2"],
   "complexity": number between 1-10,
-  "specialRequirements": ["requirement1"]
+  "specialRequirements": ["requirement1"],
+  "confidence": number between 0 and 1
 }`;
 
       const message = await client.messages.create({
-        model: 'claude-3-5-haiku-20241022',
+        model: "claude-3-5-haiku-20241022",
         max_tokens: 500,
         messages: [
           {
-            role: 'user',
+            role: "user",
             content: prompt,
           },
         ],
       });
 
       const responseText = message.content[0];
-      if (responseText.type === 'text') {
+      if (responseText.type === "text") {
         const jsonMatch = responseText.text.match(/\{[\s\S]*\}/);
         if (jsonMatch) {
-          return JSON.parse(jsonMatch[0]) as DrawingSpecs;
+          const parsed = JSON.parse(jsonMatch[0]) as DrawingSpecs;
+          if (!parsed.confidence) parsed.confidence = 0.8;
+          return parsed;
         }
       }
 
       // Fallback to original if validation fails
-      return rawSpecs as DrawingSpecs;
+      const fallback = rawSpecs as DrawingSpecs;
+      if (!fallback.confidence) fallback.confidence = 0.5;
+      return fallback;
     } catch (error) {
-      console.error('Error validating specs:', error);
+      console.error("Error validating specs:", error);
       throw error;
     }
   }
@@ -259,7 +280,9 @@ Return ONLY valid JSON in this exact format, correcting any obvious errors:
   /**
    * Batch process multiple cost calculations
    */
-  async calculateCostsBatch(specsList: DrawingSpecs[]): Promise<CostBreakdown[]> {
+  async calculateCostsBatch(
+    specsList: DrawingSpecs[]
+  ): Promise<CostBreakdown[]> {
     const results: CostBreakdown[] = [];
 
     for (const specs of specsList) {
@@ -267,9 +290,9 @@ Return ONLY valid JSON in this exact format, correcting any obvious errors:
         const cost = await this.calculateCost(specs);
         results.push(cost);
       } catch (error) {
-        console.error('Error calculating cost for batch:', error);
+        console.error("Error calculating cost for batch:", error);
         results.push({
-          material: { description: '', quantity: 0, unitCost: 0, totalCost: 0 },
+          material: { description: "", quantity: 0, unitCost: 0, totalCost: 0 },
           labor: { hours: 0, hourlyRate: 0, totalCost: 0 },
           overhead: { percentage: 0, totalCost: 0 },
           baseCost: 0,

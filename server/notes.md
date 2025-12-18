@@ -125,3 +125,85 @@ Input: FAX image of aluminum bracket (100mm × 50mm × 30mm)
 > "This estimate is reasonable because aluminum is priced at $3.5/kg (standard market rate), and a complexity 6 part requires approximately 2 hours of CNC machining at $50/hour, which reflects typical shop labor costs. The 30% overhead covers facility, equipment, and operational expenses."
 
 * Output quotation generated: $152.75 with professional justification
+
+### Commit 1.5 : Quote Service & Market Data Service Integration
+
+* *** A. Quote Service - src/services/quote.service.ts
+
+Complete end-to-end quotation generation pipeline orchestrating Gemini + Claude + Market Data.
+
+* Structure:
+* 3 interfaces: DrawingSpecs, CostBreakdown, QuoteResult
+* Main method: generateQuoteFromDrawing() - 7-step pipeline
+* Helper methods: saveQuoteToDatabase(), getQuote(), updateQuoteStatus()
+* Batch methods: generateQuoteWithCustomRules(), generateBulkQuotes()
+
+*7-Step Pipeline:**
+```
+Step 1: Gemini analyzes drawing
+  ↓ Extract: material, dimensions, processes, complexity, confidence
+  ↓
+Step 2: Claude validates specs
+  ↓ Corrects any extraction errors, ensures confidence field present
+  ↓
+Step 3: Claude calculates cost
+  ↓ Returns: material cost + labor cost + 30% overhead = baseCost
+  ↓
+Step 4: Market data adjusts price
+  ↓ Applies commodity trend factor (e.g., aluminum +5% = 1.05)
+  ↓
+Step 5: Calculate final price
+  ↓ finalPrice = baseCost × market adjustment factor
+  ↓
+Step 6: Claude generates analysis
+  ↓ Professional justification for the cost estimate
+  ↓
+Step 7: Save to MongoDB
+  ↓ Store quote document + update drawing status
+  ↓
+Return: Complete QuoteResult with all metadata
+```
+
+*Key Features:**
+* Confidence tracking through entire pipeline
+* Graceful fallbacks if Claude fails (continues with Gemini specs)
+* TypeScript type safety with interfaces
+* Logging at each step for debugging
+* Performance tracking (logs total ms)
+* Supports batch processing and custom rules (Next Phase)
+
+* Error Handling:**
+* Claude validation fails → uses Gemini specs
+* Claude analysis fails → continues with cost breakdown
+* Database save fails → quote still returned (non-blocking)
+
+* B. Market Data Service - src/services/market.service.ts
+
+Manages commodity prices and market adjustments for dynamic quotation pricing.
+
+* Structure:**
+* 2 interfaces: MarketPrice, MarketAdjustment
+* Mock database: MOCK_COMMODITY_PRICES (aluminum, steel, copper, titanium, plastic, brass)
+* 6 async methods + price multipliers
+
+* Main Methods:**
+* getMarketPrices() - fetch all commodity prices with trends
+* getCommodityPrice() - get specific commodity price
+* calculateMarketAdjustment() - convert material price trend to adjustment factor
+* updateMockPrices() - update prices for testing (Phase 1)
+* fetchFromRealAPI() - stub for future integration with real APIs (Quandl, LME, CRB)
+* getPriceTrend() - historical price data for forecasting
+
+* How It Works:**
+
+Example: Steel price is -2% trend (down)
+```
+materialCost = $100
+adjustment factor = 1 + (-2 / 100) = 0.98
+finalPrice = $100 × 0.98 = $98
+```
+
+* Phase Now vs Plan :**
+* Phase 1: Uses MOCK_COMMODITY_PRICES (hardcoded)
+* Phase 2: Will integrate real API (Quandl, Alpha Vantage, CRB Index)
+* Future: Redis caching for prices (update hourly, not per request)
