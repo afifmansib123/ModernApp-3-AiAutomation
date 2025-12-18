@@ -83,3 +83,45 @@ Check service - src/services/gemini.service.ts
  * validateSpecs - validate and normalize extracted specifications
  * getMimeType - determine MIME type from file extension -> what type of image
  * analyzeDrawingsBatch - batch analyze multiple drawings
+
+### Commit 1.4 : First AI Service : Claude Service
+
+Check service - src/services/claude.service.ts
+
+* The service has 2 interfaces, 3 data objects (material costs, labor rates, complexity multipliers), and 5 async methods
+* initializeClient - start the service (lazy loading)
+* calculateCost - compute manufacturing cost breakdown (material + labor + 30% overhead) using hardcoded market rates
+* generateCostAnalysis - send cost breakdown to Claude API to generate professional cost justification
+* validateSpecs - use Claude to validate and correct extracted drawing specifications
+* calculateCostsBatch - batch process multiple cost calculations
+
+Note: Phase 1 uses hardcoded generic pricing. For production with Inada, we will replace with actual client pricing data.
+
+* Practical Example: End-to-End Flow
+
+Input: FAX image of aluminum bracket (100mm × 50mm × 30mm)
+
+* Step 1 - Gemini analyzes drawing:**
+```
+{
+  material: "aluminum",
+  materialQuantity: 5,
+  materialUnit: "kg",
+  dimensions: { length: 100, width: 50, height: 30, unit: "mm" },
+  manufacturingProcess: ["CNC"],
+  complexity: 6,
+  specialRequirements: ["±0.1mm tolerance"],
+  confidence: 92
+}
+```
+
+* Step 2 - Claude calculates cost:**
+- Material: 5 kg × $3.5/kg = $17.50
+- Labor: complexity 6 = 2.0 hours × $50/hr (CNC) = $100.00
+- Overhead: (17.50 + 100) × 30% = $35.25
+- Total: $152.75**
+
+* Step 3 - Claude generates analysis:**
+> "This estimate is reasonable because aluminum is priced at $3.5/kg (standard market rate), and a complexity 6 part requires approximately 2 hours of CNC machining at $50/hour, which reflects typical shop labor costs. The 30% overhead covers facility, equipment, and operational expenses."
+
+* Output quotation generated: $152.75 with professional justification
