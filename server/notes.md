@@ -63,3 +63,11 @@ EOF
 8. git actions to push the code. 
 
 
+### Commit 1.2 : Model Codes.
+
+created total 5 models for the backend 
+Drawing Schema - stores uploaded engineering drawings
+Quote Schema - stores generated quotations
+Historical Quote Schema - for client-specific learning (Phase 2)
+Review Feedback Schema - for AI learning
+Market Data Schema - stores commodity prices for adjustments
