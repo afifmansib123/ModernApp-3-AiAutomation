@@ -230,3 +230,12 @@ Uploads multiple drawings (up to 10) and generates quotes for all in one request
 npm install --save-dev @types/cors
 
 The main server file has all setups of starting system , calling routes , connecting to db and cors setups.
+
+### Commit 1.8 : Edit Package.json
+
+Metadata: Project name ai-quotation-server v1.0.0, uses ES6 modules, compiles to dist/index.js.
+Scripts: dev (hot-reload with tsx), build (compile TS→JS), start (run production), lint (code quality).
+Dependencies: @anthropic-ai/sdk + @google/generative-ai (Claude & Gemini for the 7-step pipeline), express + cors (API server), mongoose + zod (MongoDB + data validation), multer + sharp (file uploads & image processing), axios + uuid (HTTP calls & unique IDs), dotenv (env vars), bull + redis (batch processing & caching for Phase 2).
+DevDependencies: typescript + tsx (compile & run TS), type definitions for all major packages (@types/*), eslint + @typescript-eslint (code linting).
+Bottom line: Full stack ready for uploading FAX drawings → extracting specs with Gemini → calculating costs with Claude → adjusting prices with market data → generating professional quotes → storing in MongoDB.
+
