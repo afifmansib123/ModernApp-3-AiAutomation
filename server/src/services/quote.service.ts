@@ -2,7 +2,6 @@ import { Quote, Drawing } from "../models/schemas.js";
 import geminiService from "./gemini.service.js";
 import claudeService from "./claude.service.js";
 import marketDataService from "./market.service.js";
-import { v4 as uuidv4 } from "uuid";
 
 interface DrawingSpecs {
   material: string;
@@ -64,7 +63,7 @@ export class QuoteService {
     drawingId?: string
   ): Promise<QuoteResult> {
     const startTime = Date.now();
-    let quoteId = uuidv4();
+    let quoteId = "";
 
     try {
       console.log(
@@ -120,9 +119,8 @@ export class QuoteService {
 
       // Step 7: Save to database
       if (drawingId) {
-        await this.saveQuoteToDatabase(
+        quoteId = await this.saveQuoteToDatabase(
           drawingId,
-          quoteId,
           costBreakdown,
           marketAdjustment,
           finalPrice,
@@ -155,16 +153,14 @@ export class QuoteService {
    */
   private async saveQuoteToDatabase(
     drawingId: string,
-    quoteId: string,
     costBreakdown: CostBreakdown,
     marketAdjustment: { factor: number; reason: string; dataSource: string },
     finalPrice: number,
     confidenceScore: number,
     extractedSpecs: DrawingSpecs
-  ): Promise<void> {
+  ): Promise<string> {
     try {
       const quote = new Quote({
-        _id: quoteId,
         drawingId,
         baseCost: costBreakdown.baseCost,
         materialCost: costBreakdown.material.totalCost,
@@ -184,9 +180,15 @@ export class QuoteService {
         status: "analyzed",
         extractedSpecs,
       });
+
+      if (!quote._id) {
+        throw new Error("Failed to generate quote ID");
+      }
+      console.log(`[Quote Service] Quote saved to DB: ${quote._id}`);
+      return quote._id.toString();
     } catch (error) {
       console.error("Error saving quote to database:", error);
-      // Don't throw - quote was generated successfully, database save is secondary
+      throw error;
     }
   }
 
