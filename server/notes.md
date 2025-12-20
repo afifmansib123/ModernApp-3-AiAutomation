@@ -207,3 +207,20 @@ finalPrice = $100 × 0.98 = $98
 * Phase 1: Uses MOCK_COMMODITY_PRICES (hardcoded)
 * Phase 2: Will integrate real API (Quandl, Alpha Vantage, CRB Index)
 * Future: Redis caching for prices (update hourly, not per request)
+
+### Commit 1.6 : API routes 
+
+POST /api/quotes/upload
+Uploads an engineering drawing (image or PDF) and triggers the complete quotation generation pipeline. Creates a Drawing record in MongoDB, then orchestrates Gemini (spec extraction) → Claude (validation & cost calculation) → Market Data (price adjustment) → Claude (analysis). Returns quote with cost breakdown, confidence score, and professional justification.
+
+POST /api/quotes/analyze-url
+Placeholder for analyzing drawings from URLs instead of file uploads. Currently returns 501 (not implemented). Will download and process remote images in future phases.
+
+GET /api/quotes/:quoteId
+Fetches a previously generated quote from MongoDB by its ID. Returns complete quote data including specs, cost breakdown, market adjustments, and analysis.
+
+PUT /api/quotes/:quoteId/status
+Updates quote status to one of: reviewed, approved, rejected, or finalized. Allows users to mark quotes after review/approval workflow.
+
+POST /api/quotes/batch
+Uploads multiple drawings (up to 10) and generates quotes for all in one request. Processes files through the same 7-step pipeline as single upload. Returns array of quotes.
