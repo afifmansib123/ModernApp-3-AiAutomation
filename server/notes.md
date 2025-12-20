@@ -224,3 +224,9 @@ Updates quote status to one of: reviewed, approved, rejected, or finalized. Allo
 
 POST /api/quotes/batch
 Uploads multiple drawings (up to 10) and generates quotes for all in one request. Processes files through the same 7-step pipeline as single upload. Returns array of quotes.
+
+### Commit 1.7 : Create Main Server - index.ts 
+
+npm install --save-dev @types/cors
+
+The main server file has all setups of starting system , calling routes , connecting to db and cors setups.
