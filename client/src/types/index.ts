@@ -85,20 +85,23 @@ export interface QuotationRequest {
 // quotation result types
 
 export interface QuotationResult {
-  id: string; // MongoDB _id from Quote document
-  drawingId: string; // Reference to Drawing document
+  _id: string;  // MongoDB _id
+  drawingId: string;
   extractedSpecs: DrawingSpecs;
   breakdown: CostBreakdown;
   marketAdjustment: MarketAdjustment;
   baseCost: number;
   finalPrice: number;
-  currency: string; // e.g., "USD"
-  confidenceScore: number; // 0-100
+  currency: string;
+  confidenceScore: number;
   status: "generated" | "reviewed" | "approved" | "rejected" | "finalized";
   createdAt: string;
   updatedAt: string;
-  // Additional AI-generated content (from quote service)
-  analysis?: string; // 2-3 sentence cost reasoning from Claude
+  analysis?: string;
+  materialCost: number;
+  laborCost: number;
+  overheadCost: number;
+  __v?: number;
 }
 
 export interface QuotationHistory {

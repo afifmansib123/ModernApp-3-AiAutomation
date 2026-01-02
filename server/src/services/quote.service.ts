@@ -151,46 +151,47 @@ export class QuoteService {
   /**
    * Save quote to MongoDB
    */
-  private async saveQuoteToDatabase(
-    drawingId: string,
-    costBreakdown: CostBreakdown,
-    marketAdjustment: { factor: number; reason: string; dataSource: string },
-    finalPrice: number,
-    confidenceScore: number,
-    extractedSpecs: DrawingSpecs
-  ): Promise<string> {
-    try {
-      const quote = new Quote({
-        drawingId,
-        baseCost: costBreakdown.baseCost,
-        materialCost: costBreakdown.material.totalCost,
-        laborCost: costBreakdown.labor.totalCost,
-        overheadCost: costBreakdown.overhead.totalCost,
-        marketAdjustment,
-        finalPrice,
-        confidenceScore,
-        breakdown: costBreakdown,
-        status: "generated",
-      });
+private async saveQuoteToDatabase(
+  drawingId: string,
+  costBreakdown: CostBreakdown,
+  marketAdjustment: { factor: number; reason: string; dataSource: string },
+  finalPrice: number,
+  confidenceScore: number,
+  extractedSpecs: DrawingSpecs
+): Promise<string> {
+  try {
+    const quote = new Quote({
+      drawingId,
+      baseCost: costBreakdown.baseCost,
+      materialCost: costBreakdown.material.totalCost,
+      laborCost: costBreakdown.labor.totalCost,
+      overheadCost: costBreakdown.overhead.totalCost,
+      marketAdjustment,
+      finalPrice,
+      confidenceScore,
+      breakdown: costBreakdown,
+      status: "generated",
+      // NO quoteId here - MongoDB _id is the id
+    });
 
-      await quote.save();
+    await quote.save();
 
-      // Update drawing status
-      await Drawing.findByIdAndUpdate(drawingId, {
-        status: "analyzed",
-        extractedSpecs,
-      });
+    // Update drawing status
+    await Drawing.findByIdAndUpdate(drawingId, {
+      status: "analyzed",
+      extractedSpecs,
+    });
 
-      if (!quote._id) {
-        throw new Error("Failed to generate quote ID");
-      }
-      console.log(`[Quote Service] Quote saved to DB: ${quote._id}`);
-      return quote._id.toString();
-    } catch (error) {
-      console.error("Error saving quote to database:", error);
-      throw error;
+    if (!quote._id) {
+      throw new Error("Failed to generate quote ID");
     }
+    console.log(`[Quote Service] Quote saved to DB: ${quote._id}`);
+    return quote._id.toString();
+  } catch (error) {
+    console.error("Error saving quote to database:", error);
+    throw error;
   }
+}
 
   /**
    * Generate quote with custom cost rules (for Phase 2 fine-tuning)

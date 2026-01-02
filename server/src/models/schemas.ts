@@ -51,11 +51,12 @@ export const drawingSchema = new mongoose.Schema({
 });
 
 // Quote Schema - stores generated quotations
+// quote schema - FIXED
 export const quoteSchema = new mongoose.Schema({
   _id: {
-  type: mongoose.Schema.Types.ObjectId,
-  auto: true
-},
+    type: mongoose.Schema.Types.ObjectId,
+    auto: true
+  },
   drawingId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Drawing',
@@ -69,9 +70,9 @@ export const quoteSchema = new mongoose.Schema({
   laborCost: Number,
   overheadCost: Number,
   marketAdjustment: {
-    factor: Number, // e.g., 1.05 for 5% increase
-    reason: String, // e.g., "Aluminum price up 5%"
-    dataSource: String // e.g., "CRB Index"
+    factor: Number,
+    reason: String,
+    dataSource: String
   },
   finalPrice: {
     type: Number,

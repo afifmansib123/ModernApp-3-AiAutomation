@@ -38,6 +38,20 @@ apis needed to be adjusted to the latest types and the backend
 
 1. created drawing.service.ts and helper.ts -> both utility functions. 
 
-### Commit 2.8 - MVP : Page.tsx and Layout File
+### Commit 2.9 - MVP : Page.tsx and Layout File
 
 1. layout file and page created. check code
+
+### Commit 2.10 - MVP : upload file and see details page 
+
+1. created upload page - check code 
+
+mkdir -p src/app/upload
+touch src/app/upload/page.tsx
+
+2. created quote id page - check code 
+
+mkdir -p src/app/quotation/[id]
+touch src/app/quotation/\[id\]/page.tsx
+
+models and service needed to be edited. but its working properly now
