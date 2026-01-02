@@ -37,3 +37,7 @@ apis needed to be adjusted to the latest types and the backend
 ### Commit 2.8 - MVP : Drawing service and Helper
 
 1. created drawing.service.ts and helper.ts -> both utility functions. 
+
+### Commit 2.8 - MVP : Page.tsx and Layout File
+
+1. layout file and page created. check code
