@@ -29,7 +29,11 @@ npm i lucide-react dotenv date-fns react-filepond filepond filepond-plugin-image
 1. npm install zod@latest
 2. check file - validation.ts at lib folder
 
-### Commit 2.7 - MVP : Zod Validators
+### Commit 2.7 - MVP : RTK Setup
 
 1. RTK setup and made all the apis at the folder. check api.ts and store.ts.
 apis needed to be adjusted to the latest types and the backend 
+
+### Commit 2.8 - MVP : Drawing service and Helper
+
+1. created drawing.service.ts and helper.ts -> both utility functions. 
