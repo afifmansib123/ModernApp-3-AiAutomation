@@ -19,3 +19,8 @@ npm i lucide-react dotenv date-fns react-filepond filepond filepond-plugin-image
 
 1. install shadcn components : npx shadcn@latest add avatar badge button card checkbox command dialog dropdown-menu form input label navigation-menu radio-group select separator sheet sidebar skeleton slider switch table tabs textarea tooltip
 2. copied the constants to lib folder. 
+
+### Commit 2.5 - MVP : Folder Setup and Types 
+
+1. create all folders : mkdir -p src/{app,components,services,types,utils,contexts,hooks,lib,state}
+2. create types in types folder 
