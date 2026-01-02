@@ -24,3 +24,7 @@ npm i lucide-react dotenv date-fns react-filepond filepond filepond-plugin-image
 
 1. create all folders : mkdir -p src/{app,components,services,types,utils,contexts,hooks,lib,state}
 2. create types in types folder 
+
+### Commit 2.6 - MVP : Zod Validators
+1. npm install zod@latest
+2. check file - validation.ts at lib folder
